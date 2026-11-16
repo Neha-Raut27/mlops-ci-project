@@ -1,0 +1,26 @@
+name: Docker ML Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  docker-build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t iris-ml-app .
+
+      - name: Run ML Application in Container
+        run: docker run --rm -v "${{ github.workspace }}/reports:/app/reports" iris-ml-app
+
+      - name: Test Application in Container
+        run: docker run --rm iris-ml-app pytest -v
+
+      - name: Verify Build Report
+        run: test -f reports/build_report.txt
